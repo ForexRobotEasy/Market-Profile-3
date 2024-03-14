@@ -1,0 +1,93 @@
+
+// Market Profile 3 - Forex Trading Software
+// Developer: Forex Robot Easy Team
+// Website: forexroboteasy.com
+
+// Include necessary libraries
+#include <Trade\Trade.mqh>
+
+// Define constants for color schemes
+#define COLOR_SCHEME_1 clrRed
+#define COLOR_SCHEME_2 clrGreen
+#define COLOR_SCHEME_3 clrBlue
+#define COLOR_SCHEME_4 clrYellow
+#define COLOR_SCHEME_5 clrMagenta
+#define COLOR_SCHEME_6 clrCyan
+
+// Define constants for session types
+#define SESSION_DAILY 0
+#define SESSION_WEEKLY 1
+#define SESSION_MONTHLY 2
+#define SESSION_INTRADAY 3
+
+// Define function to draw market profile
+void DrawMarketProfile(int sessionType, int colorScheme, bool colorBullBear)
+{
+    // Get the desired timeframe for analysis
+    ENUM_TIMEFRAMES timeframe = PERIOD_CURRENT;
+    
+    // Determine the session duration based on session type
+    int sessionDuration = 0;
+    if(sessionType == SESSION_DAILY)
+        sessionDuration = 1;
+    else if(sessionType == SESSION_WEEKLY)
+        sessionDuration = 7;
+    else if(sessionType == SESSION_MONTHLY)
+        sessionDuration = 30;
+    else if(sessionType == SESSION_INTRADAY)
+        sessionDuration = 1440;
+    
+    // Calculate the number of bars for the session
+    int bars = sessionDuration * 1440 / PeriodSeconds(timeframe);
+    
+    // Initialize arrays to store price levels
+    double levels[bars];
+    
+    // Retrieve price data for the session
+    ArraySetAsSeries(levels, true);
+    CopyHigh(Symbol(), timeframe, 0, bars, levels);
+    
+    // Draw market profile based on color scheme and bull/bear coloring option
+    if(colorBullBear)
+    {
+        for(int i = 0; i < bars; i++)
+        {
+            if(levels[i] > levels[i-1]) // Bullish bar
+                SetIndexStyle(i, DRAW_COLOR_LINE, EMPTY, colorScheme);
+            else if(levels[i] < levels[i-1]) // Bearish bar
+                SetIndexStyle(i, DRAW_COLOR_LINE, EMPTY, colorScheme);
+            else // Neutral bar
+                SetIndexStyle(i, DRAW_COLOR_LINE, EMPTY, clrGray);
+        }
+    }
+    else
+    {
+        for(int i = 0; i < bars; i++)
+        {
+            SetIndexStyle(i, DRAW_COLOR_LINE, EMPTY, colorScheme);
+        }
+    }
+}
+
+// Initialize trading robot
+void OnInit()
+{
+    // Set the desired session type and color scheme
+    int sessionType = SESSION_INTRADAY;
+    int colorScheme = COLOR_SCHEME_1;
+    
+    // Draw market profile
+    DrawMarketProfile(sessionType, colorScheme, true);
+}
+
+// Execute trading operations
+void OnTick()
+{
+    // Implement trading algorithm here
+}
+
+// Clean up resources
+void OnDeinit(const int reason)
+{
+    // Clean up any used resources
+}
